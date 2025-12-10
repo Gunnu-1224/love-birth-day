@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Happy Birthday Bander 💛</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* BASE STYLES */
+        body {
+            margin: 0;
+            font-family: 'Arial', cursive;
+            background: black;
+            color: gold;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        /* SECTION STYLES - CRITICAL FIX HERE */
+        section {
+            min-height: 100vh;
+            padding: 30px 10px;
+            
+            /* Default state: hidden and out of document flow */
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: none; 
+            
+            border: 4px solid goldenrod;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        /* Active state: visible and takes up space */
+        section.active { 
+            display: flex; 
+            position: relative; /* Now it takes up document space */
+        } 
+        
+        /* OVERLAY STYLES */
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            color: gold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10002;
+            text-align: center;
+        }
+        
+        #start-button {
+            padding: 15px 30px;
+            font-size: 24px;
+            background: goldenrod;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 20px gold;
+            animation: pulse 1s infinite;
+        }
+        
+        /* COMMON ELEMENTS */
+        h1, h2 {
+            text-shadow: 0 0 15px gold;
+            margin-bottom: 20px;
+        }
+
+        .heart {
+            font-size: 50px;
+            margin-top: 30px;
+            cursor: pointer;
+            animation: pulse 1s infinite;
+            text-shadow: 0 0 10px red;
+        }
+
+        /* BOX STYLES */
+        .box-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .box-container {
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            perspective: 1000px;
+            display: inline-block;
+        }
+
+        .box {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .box.flipped { transform: rotateY(180deg); }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 3px solid #fff;
+            color: black;
+        }
+
+        .front { background: #ffd1dc; z-index: 2; }
+
+        .back { transform: rotateY(180deg); }
+
+        .back img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        
+        /* CAKE/FIREWORKS STYLES */
+        #cake-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        #cake {
+            width: 250px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            border-radius: 50%;
+        }
+
+        .flame {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 35px;
+            transition: opacity 1s;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .blow { opacity: 0; }
+
+        .fire {
+            position: fixed;
+            inset: 0;
+            background: black;
+            animation: flash 0.5s infinite alternate;
+            z-index: 10000;
+        }
+
+        @keyframes flash {
+            0% { background: black; }
+            50% { background: #ff0077; }
+            100% { background: black; }
+        }
+        
+        /* LOVE RAIN & ANIMATIONS */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .love {
+            position: fixed;
+            top: -10px;
+            font-size: 20px;
+            animation: fall 5s linear infinite;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh); }
+        }
+
+        /* P5 PHOTO STYLES */
+        #p5-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #final-photo-container {
+            margin-bottom: 20px;
+            border: 5px solid goldenrod;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px gold;
+        }
+
+        #final-photo {
+            width: 200px; 
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="start-overlay">
+        <h1>💛 Happy Birthday Bander! 💛</h1>
+        <p>Jisne meri life ko special banaya uske liye special sa GIFT</p>
+        <button id="start-button"> DEKHNA HAI -- CLICK KARO... (Let's start) </button>
+    </div>
+
+    <audio id="audio_p1" loop src="song1.mp3"></audio>
+    <audio id="audio_p2" loop src="song2.mp3"></audio>
+    <audio id="audio_p3" loop src="song3.mp3"></audio>
+    <audio id="audio_p4" loop src="song4.mp3"></audio>
+    <audio id="audio_p5" loop src="song5.mp3"></audio>
+
+    <section id="p1"> 
+        <h1>🎂 Happy Birthday Bander 🎂</h1>
+        <p> Aapko me kya gift de sakti hu.... <br> Aap khud hi meri life me bahut special gift ho. ☺️ 💛</p>
+        <h2>Phir bhi aapke liye 26 pyaare gifts 🎁</h2>
+
+        <div id="cake-container">
+            <img id="cake" src="cake.jpg" alt="Birthday Cake" onerror="this.onerror=null; this.src='error.png';">
+            <div class="flame">🔥</div>
+        </div>
+
+        <p style="margin-top:20px;">Cake par click karo 💨</p>
+    </section>
+
+    <section id="p2">
+        <h2>🎁 Special GIFTS for Precious ONE 🎁</h2>
+        <div id="g1" class="box-grid"></div>
+        <div class="heart" onclick="showPage(3)"> Aage or bhi hai! ❤️</div>
+    </section>
+
+    <section id="p3">
+        <h2>✨ Special moments for Special ONE✨</h2>
+        <div id="g2" class="box-grid"></div>
+        <div class="heart" onclick="showPage(4)"> Bahut saari photos ho gayi... Ab thoda Padhenge! ❤️</div>
+    </section>
+
+    <section id="p4">
+        <h2>💌 Special Birthday Wishes for YOU 🐒 (21-25) 💌</h2>
+        <div id="wishes" class="box-grid"></div>
+        <div class="heart" onclick="showPage(5)"> Aage laddu milega CHALO CHALO ❤️</div>
+    </section>
+
+    <section id="p5">
+        <h2>🎉 Most SPECIAL Moment (Gift 26) 🎉</h2>
+        
+        <div id="p5-content">
+            <div id="final-photo-container">
+                <img id="final-photo" src="final.jpg" alt="Final Special Photo" onerror="this.onerror=null; this.src='error.png'; console.error('Final photo not found');">
+            </div>
+
+            <div class="box-container">
+                <div class="box" onclick="finale(this)"> <div class="front" style="background:linear-gradient(135deg, #ffc0cb, #ff69b4); color:white;">
+                        Happy birthday Pagal 😘
+                    </div>
+                    <div class="back" style="background:#ffdd00;">
+                        <p style="font-size:16px; color:black; font-weight:bold; line-height:1.4;">
+                            Tum bahut kuchh karte ho sabke liye... Is birthday ek gift khud ko de lo 💝 <br> 
+                            Kuchh khud ke liye khud hi health khud ki khushi or khud ke sukoon ke liye kar lo 🥰 <br> 
+                            Thoda apna dhyan rakhna shuru kar lo mere pagal 🫶 <br> 
+                            Thankyou meri life me aakar itna special banane ke liye 🐵 <br> 
+                            🤍 HAPPY BIRTHDAY AGAIN 🤍
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- CONFIGURATION START ---
+        const IMAGE_FILES_G1 = [
+            "gift 1.jpg", "gift 2.jpg", "gift 3.jpg", "gift 4.jpg",
+            "gift 5.jpg", "gift 6.jpg", "gift 7.jpg", "gift 8.jpg", 
+            "gift 9.jpg", "gift 10.jpg"
+        ];
+
+        const IMAGE_FILES_G2 = [
+            "gift 11.jpg", "gift 12.jpg", "gift 13.jpg", "gift 14.jpg",
+            "gift 15.jpg", "gift 16.jpg", "gift 17.jpg", "gift 18.jpg",
+            "gift 19.jpg", "gift 20.jpg"
+        ];
+
+        const WISH_TEXTS = [
+            "Tum meri life ke safest place ho, jahs mujhe sochna nahi padta ki mujhe kya result milega 💛",
+            "Tumhari smile meri har problem ka solution hai beshak tum aaj kal kam karte ho par jab bhi karte ho sukoon milta hai😊",
+            "Tum na kabhi bhi ye tension mat lena ki me aapko chhod dungi ya kuchh bhi kyuki hume bhagvan ne milaya hai or jise vo milata hai na use koi duur nahi kar sakta ❤️", 
+            "Tum mere liye sab kuch ho meri puri duniya meri zindagi meri khushi meri himmat. Aap agar na hote to me apni life imagine bhi nahi kar sakti 🌍",
+            "Happy' Birthday my love 🫂 <br> I Love You Forever ❤️"
+        ];
+
+        const BRIGHT_COLORS = [
+            '#FFD1DC', '#FFB3BA', '#FFFFBA', '#BAFFC9', '#BAE1FF',
+            '#FFC5A1', '#E0BBE4', '#A8DADC', '#F4978E', '#BEE3DB'
+        ];
+        // --- CONFIGURATION END ---
+
+
+        function getRandomColor() {
+            return BRIGHT_COLORS[Math.floor(Math.random() * BRIGHT_COLORS.length)];
+        }
+
+
+        const audioPlayers = {
+            p1: document.getElementById('audio_p1'),
+            p2: document.getElementById('audio_p2'),
+            p3: document.getElementById('audio_p3'),
+            p4: document.getElementById('audio_p4'),
+            p5: document.getElementById('audio_p5'),
+        };
+
+        function playAudioForPage(pageId) {
+            Object.values(audioPlayers).forEach(audio => {
+                if (audio && !audio.paused) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
+            const audio = audioPlayers[pageId];
+            if (audio) {
+                // Play audio only if it exists and is not already playing
+                audio.play().catch(e => console.error(`Audio for ${pageId} play failed:`, e));
+            }
+        }
+
+        // Central function to control page visibility
+        function showPage(n) {
+            const pageId = "p" + n;
+            
+            document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+            
+            const targetSection = document.getElementById(pageId);
+            if (targetSection) {
+                targetSection.classList.add("active");
+                window.scrollTo(0, 0);
+                playAudioForPage("p" + n); 
+            }
+        }
+
+        // --- GIFT BOX CREATION ---
+        function createGiftBox(i, containerId, imageUrl, isWish = false, wishText = "") {
+            let container = document.getElementById(containerId);
+            if (!container) return; 
+            
+            let boxContainer = document.createElement("div");
+            boxContainer.className = "box-container";
+
+            let box = document.createElement("div");
+            box.className = "box";
+
+            let front = document.createElement("div");
+            front.className = "front";
+            front.innerHTML = isWish ? `Gift ${i}: <br> Open Wish` : `Gift ${i}`;
+            front.style.backgroundColor = getRandomColor();
+
+            let back = document.createElement("div");
+            back.className = "back";
+            
+            if (isWish) {
+                back.innerHTML = `<p style="font-size:14px; color:black; padding: 5px;">${wishText}</p>`;
+            } else {
+                back.innerHTML = `<img src="${imageUrl}" alt="Gift ${i} Photo" onerror="this.onerror=null; this.src='error.png'; console.error('Image not found: ${imageUrl}')">`;
+            }
+
+            box.appendChild(front);
+            box.appendChild(back);
+            boxContainer.appendChild(box);
+            container.appendChild(boxContainer);
+
+            // Box Click/Flip Logic
+            box.onclick = function() {
+                if (!this.classList.contains("flipped")) {
+                    this.classList.add("flipped");
+                    startLoveRain();
+                }
+            };
+        }
+
+        function populateGifts() {
+            for (let i = 1; i <= 10; i++) {
+                createGiftBox(i, 'g1', IMAGE_FILES_G1[i-1]);
+            }
+            for (let i = 11; i <= 20; i++) {
+                createGiftBox(i, 'g2', IMAGE_FILES_G2[i-11]);
+            }
+            for (let i = 21; i <= 25; i++) {
+                createGiftBox(i, 'wishes', '', true, WISH_TEXTS[i-21]);
+            }
+        }
+        
+        // --- START SCREEN AND CAKE LOGIC ---
+
+        const startButton = document.getElementById('start-button');
+        const startOverlay = document.getElementById('start-overlay');
+        const cake = document.getElementById('cake');
+
+        // Start button handler
+        if (startButton) {
+            startButton.onclick = () => {
+                populateGifts(); 
+                startOverlay.style.display = 'none';
+                showPage(1); 
+            };
+        }
+
+        // Cake click handler
+        if (cake) {
+            cake.onclick = () => {
+                document.querySelector(".flame").classList.add("blow");
+                if (audioPlayers.p1) audioPlayers.p1.pause(); 
+                setTimeout(() => showPage(2), 1500); 
+            };
+        }
+
+        // --- LOVE RAIN EFFECT ---
+        let rainInterval;
+        function startLoveRain() {
+            if (rainInterval) { clearInterval(rainInterval); }
+            
+            let rainDuration = 5000;
+            let heartCreationInterval = 200;
+
+            rainInterval = setInterval(() => {
+                let l = document.createElement("div");
+                l.className = "love";
+                l.innerHTML = "💖";
+                l.style.left = Math.random() * 100 + "vw";
+                l.style.animationDuration = (Math.random() * 3) + 3 + "s";
+                document.body.appendChild(l);
+                setTimeout(() => l.remove(), 6000);
+            }, heartCreationInterval);
+            
+            setTimeout(() => {
+                clearInterval(rainInterval);
+            }, rainDuration);
+        }
+
+        // --- FINAL PAGE LOGIC ---
+        function finale(boxElement) {
+            // Optional: Flip the box permanently on final click
+            if (boxElement && !boxElement.classList.contains("flipped")) {
+                 boxElement.classList.add("flipped");
+            }
+
+            if (audioPlayers.p5) audioPlayers.p5.pause(); 
+            
+            // Final screen effect
+            const fireworkHtml = `
+            <div class="fire"></div>
+            <h1 style="position:fixed;top:40%;width:100%;z-index:10001;color:white;text-shadow:0 0 20px goldenrod;">
+            🎆 Happy Birthday Meri Jaan 🎆<br>
+            I Love You Always 💛
+            </h1>`;
+
+            // Append fireworks HTML safely
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fireworkHtml;
+            while(tempDiv.firstChild) {
+                document.body.appendChild(tempDiv.firstChild);
+            }
+        }
+
+        // Initial setup on page load: ensure only the start overlay is visible
+        document.addEventListener('DOMContentLoaded', () => {
+             // Hide all sections initially (redundant due to CSS, but safe)
+             document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+        });
+        
+    </script>
+</body>
+</html>
